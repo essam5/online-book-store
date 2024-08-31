@@ -84,3 +84,6 @@ python manage.py test
 ```bash
 docker-compose run web python manage.py test
 ```
+
+## CI/CD
+The application uses GitHub Actions for CI/CD. Ensure your pipelines are configured to run tests and lint code and deploy the application as needed.
