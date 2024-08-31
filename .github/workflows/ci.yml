@@ -1,0 +1,58 @@
+name: Django CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:13
+        env:
+          POSTGRES_DB: test_bookstore
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Migrations
+        env:
+          DB_NAME: test_bookstore
+          DB_USER: user
+          DB_PASSWORD: password
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+        run: |
+          python manage.py migrate
+
+      - name: Run Tests
+        env:
+          DB_NAME: test_bookstore
+          DB_USER: user
+          DB_PASSWORD: password
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+        run: |
+          python manage.py test
